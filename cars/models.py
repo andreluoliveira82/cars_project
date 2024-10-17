@@ -16,7 +16,7 @@ class Car(models.Model):
     brand = models.ForeignKey(
         Brand, on_delete=models.PROTECT, related_name="car_brand", verbose_name="Marca"
     )
-    factor_year = models.IntegerField(
+    factory_year = models.IntegerField(
         verbose_name="Ano Fabricação", blank=True, null=True
     )
     model_year = models.IntegerField(verbose_name="Ano Modelo", blank=True, null=True)
@@ -33,4 +33,4 @@ class Car(models.Model):
 
     # sobreescrevemos o método __str__ para evitar que o objeto fique como 'object' no site
     def __str__(self) -> str:
-        return self.model # model aqui é o modelo do carro (nao a model do sistema)
+        return self.model  # model aqui é o modelo do carro (nao a model do sistema)

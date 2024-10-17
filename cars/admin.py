@@ -14,14 +14,14 @@ class CarAdmin(admin.ModelAdmin):
         "name",
         "model",
         "brand",
-        # "factor_year",
+        # "factory_year",
         "model_year",
         # "description",
         "price",
         "photo",
     )
     search_fields = ("name", "model", "brand")
-    list_filter = ("brand", "factor_year", "model_year")
+    list_filter = ("brand", "factory_year", "model_year")
 
 
 # registers the models in the admin panel
