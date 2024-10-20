@@ -32,7 +32,7 @@ def new_car_view(request):
     """_summary_: Quando o usuario 'bater' na rota new_car, esta função será chamada e
      o metodo GET será devolvido. Assim renderizamos na página o formulário para criar um novo carro.
 
-     Quando o usuario clicar no botão submit, o metodo POST será chamado e o novo carro será criad no database.
+     Quando o usuario clicar no botão submit, o metodo POST será chamado e o novo carro será criado no database.
 
     Args:
         request (http request): _é o objeto que contém todas as informações da requisição do usuário.

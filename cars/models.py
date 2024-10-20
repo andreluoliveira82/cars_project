@@ -25,9 +25,7 @@ class Car(models.Model):
         max_digits=10, decimal_places=2, verbose_name="Preço", blank=True, null=True
     )
     description = models.TextField(verbose_name="Descrição", blank=True, null=True)
-    photo = models.ImageField(
-        upload_to="cars/", verbose_name="Foto", blank=True, null=True
-    )
+    photo = models.ImageField(upload_to="cars/", verbose_name="Foto", default="cars/no-photo.jpg")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Criado em")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Atualizado em")
 
