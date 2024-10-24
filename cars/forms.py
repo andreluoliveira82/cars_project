@@ -47,8 +47,13 @@ class CarModelForm(forms.ModelForm):
         model = Car
         fields = "__all__"
 
-    # methods to validate fields in form
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ordena o campo 'brand' em ordem alfabética
+        self.fields["brand"].queryset = Brand.objects.order_by("name")
 
+    # methods to validate fields in form
+    #
     def clean_name(self):
         name = self.cleaned_data.get("name")
         if len(name) < 3:
@@ -72,3 +77,19 @@ class CarModelForm(forms.ModelForm):
                 "O ano modelo deve ser igual ao ano de fabriação ou o ano de fabricação + 1 ",
             )
         return model_year
+
+
+class BrandModelForm(forms.ModelForm):
+    class Meta:
+        model = Brand
+        fields = "__all__"
+
+    def clean_name(self):
+        name = self.cleaned_data.get("name")
+
+        if name == "" or len(name) < 3:
+            self.add_error(
+                field="name",
+                error="Informe a marca. O nome da marca deve ter ao menos 03 caracteres.",
+            )
+        return name

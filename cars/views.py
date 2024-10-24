@@ -1,50 +1,111 @@
-from django.shortcuts import render, redirect
-from cars.models import Car
-from cars.forms import CarModelForm
+from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    UpdateView,
+    DeleteView,
+)
+
+from cars.models import Brand, Car
+from cars.forms import CarModelForm, BrandModelForm
+
+# =======================CAR=============================
 
 
-def home_view(request):
-    return render(request, "home.html")
+class HomeView(View):
+    def get(self, request):
+        return render(request, "home.html")
 
 
-def cars_view(request):
-    """Quando o usuario 'bater' na rota cars, esta função será chamada e retornará a lista de carros.
-    se o usuario passar um parametro na url, como search=Fiat, a função irá filtrar os carros com o nome Fiat.
-
-    Args:
-        request (_type_): _description_
+class CarsListView(ListView):
     """
-    cars = Car.objects.all().order_by("brand__name")
-
-    search = request.GET.get("search")
-
-    if search:
-        # contains filtro que busca por palavras que contenham o valor passado
-        # cars = cars.filter(model__contains=search)
-
-        # icontains é o mesmo, mas não diferencia maiúsculas e minúsculas (o i é de ignore case)
-        cars = cars.filter(model__icontains=search)
-        
-    return render(request, "cars.html", {"cars": cars})
-
-
-def new_car_view(request):
-    """_summary_: Quando o usuario 'bater' na rota new_car, esta função será chamada e
-     o metodo GET será devolvido. Assim renderizamos na página o formulário para criar um novo carro.
-
-     Quando o usuario clicar no botão submit, o metodo POST será chamado e o novo carro será criado no database.
-
-    Args:
-        request (http request): _é o objeto que contém todas as informações da requisição do usuário.
-
-    Returns:
-        response http: _o que será devolvido para o usuário.
+    Exibe a lista de carros na pagina (view).
+    Caso o usuario fizer um filtro (search), o metodo 'get_query' será executado.
     """
-    if request.method == "POST":
-        new_car_form = CarModelForm(request.POST, request.FILES)
-        if new_car_form.is_valid():
-            new_car_form.save()
-            return redirect("cars_list")
-    else:
-        new_car_form = CarModelForm()
-    return render(request, "new_car.html", context={"new_car_form": new_car_form})
+
+    model = Car
+    template_name = "cars.html"
+    context_object_name = "cars"
+
+    def get_queryset(self):
+        cars = super().get_queryset().order_by("price")  # model = modelo carro
+
+        search = self.request.GET.get("search")
+
+        if search:
+            # contains filtro que busca por palavras que contenham o valor passado
+            # cars = cars.filter(model__contains=search)
+
+            # icontains é o mesmo, mas não diferencia maiúsculas e minúsculas (o i é de ignore case)
+            cars = cars.filter(model__icontains=search)
+        return cars
+
+
+class CarDetailView(DetailView):
+    """
+    Visualizar detalhes de um item específico
+
+    """
+
+    model = Car
+    template_name = "car_detail.html"
+
+
+@method_decorator(login_required(login_url="login"), name="dispatch")
+class NewCarCreateView(CreateView):
+    """Insert a new car in the database"""
+
+    model = Car
+    form_class = CarModelForm
+    template_name = "new_car.html"
+    success_url = "/cars/"
+
+
+@method_decorator(login_required(login_url="login"), name="dispatch")
+class CarUpdateView(UpdateView):
+    """
+    Atualizar um carro selecionado
+    """
+
+    model = Car
+    form_class = CarModelForm
+    template_name = "car_update.html"
+
+    # sobreescrevendo o metodo get_success_url para conseguir redirecionar para a página de detalhe do item
+    def get_success_url(self) -> str:
+        return reverse_lazy("car_detail", kwargs={"pk": self.object.pk})
+
+
+@method_decorator(login_required(login_url="login"), name="dispatch")
+class CarDeleteView(DeleteView):
+    """
+    Deletar um carro selecionado
+    """
+
+    model = Car
+    template_name = "car_delete.html"
+    success_url = "/cars/"
+
+
+# =======================BRAND=============================
+
+
+@method_decorator(login_required(login_url="login"), name="dispatch")
+class NewBrandCreateView(CreateView):
+    """Create a new brand"""
+
+    model = Brand
+    form_class = BrandModelForm
+    template_name = "new_brand.html"
+    success_url = "/new_brand/"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Adiciona a lista de marcas ao contexto
+        context["brands"] = Brand.objects.order_by("name")
+        return context
