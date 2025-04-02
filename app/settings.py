@@ -77,6 +77,9 @@ DATABASES = {
         "PORT": "5432",
         "USE_TZ": True,
         "TIME_ZONE": "America/Sao_Paulo",
+        'OPTIONS': {
+            'client_encoding': 'UTF8',
+        },
     }
 }
 
